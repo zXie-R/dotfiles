@@ -298,8 +298,10 @@ let g:startify_lists = [
 
 if executable('rg')
     let g:rg_derive_root='true'
+    let g:agriculture#rg_options='--column --pretty --smart-case'
 endif
-nnoremap <Leader>rg :Rg<SPACE>
+nnoremap <Leader>/ :Rg<SPACE>
+vmap <Leader>/ <Plug>RgRawVisualSelection
 command! -bang Open call fzf#vim#files('~', <bang>0)
 
 " ctrl-v to paste in fzf prompt
@@ -313,3 +315,4 @@ augroup OpenAllFoldsOnFileOpen
     autocmd!
     autocmd BufRead * normal zR
 augroup END
+
