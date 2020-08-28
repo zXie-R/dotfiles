@@ -38,7 +38,6 @@ highlight ColorColumn ctermbg=0 guibg=lightgrey
 
 call plug#begin('~/.vim/plugged')
 
-" Plug 'gruvbox-community/gruvbox'
 Plug 'morhetz/gruvbox'
 
 " gc comment
@@ -60,7 +59,8 @@ Plug 'mbbill/undotree'
 " Search utilities
 Plug 'junegunn/fzf'
 Plug 'junegunn/fzf.vim'
-Plug 'jesseleite/vim-agriculture'
+" Not working on windows
+" Plug 'jesseleite/vim-agriculture'
 
 Plug 'preservim/nerdtree'
 
@@ -72,6 +72,8 @@ Plug 'neoclide/coc.nvim', {'branch': 'release'}
 Plug 'mlaursen/vim-react-snippets'
 
 Plug 'qpkorr/vim-bufkill'
+
+Plug 'vuciv/vim-bujo'
 
 call plug#end()
 
@@ -105,6 +107,7 @@ nnoremap <leader>wk :wincmd k<CR>
 nnoremap <leader>wl :wincmd l<CR>
 nnoremap <leader>wv :wincmd v<CR>
 nnoremap <leader>ws :wincmd s<CR>
+nnoremap <leader>wq :wincmd q<CR>
 
 nnoremap <leader>bd :BD<CR>
 
@@ -115,6 +118,7 @@ nnoremap <Up> <C-Y>
 " Cycling through listed buffers
 nnoremap <silent> <Right> :bnext<CR>
 nnoremap <silent> <Left> :bprevious<CR>
+command! CloseOthers silent! execute "%bd|e#|bd#"
 
 " Disable automatic comment insertion
 autocmd FileType * setlocal formatoptions-=c formatoptions-=r formatoptions-=o
@@ -265,10 +269,23 @@ com! DiffSaved call s:DiffWithSaved()
 " TSX syntax highlighting
 let g:polyglot_disabled = ['typescript']
 
-nnoremap <C-p> :GFiles<CR>
-nnoremap <leader>sb :Lines<CR>
-nnoremap <C-f> :BLines<CR>
+" Search commands/configs
+nnoremap <C-p> :PFiles<CR>
 nnoremap <leader>sc :History:<CR>
+nnoremap <leader>sr :Recent<CR>
+nnoremap <C-f> :BLines<CR>
+nnoremap <Leader>/ :Rg<SPACE>
+vnoremap <Leader>/ "ay:Rg <C-R>A<CR>
+vnoremap // "ay/\V<C-R>=escape(@a,'/\')<CR><CR>
+command! -bang Open call fzf#vim#files('~', <bang>0)
+command! -bang -nargs=? PFiles call fzf#vim#gitfiles(<q-args>, {'options': '--no-preview'}, <bang>0)
+command! -bang -nargs=* Recent call fzf#vim#history({'options': '--no-preview'}, <bang>0)
+command! -bar -bang -nargs=? -complete=buffer Buffers call fzf#vim#buffers(<q-args>, {'options': '--no-preview'}, <bang>0)
+let g:fzf_layout = { 'window': { 'width': 0.8, 'height': 0.8 } }
+let g:fzf_preview_window = 'down:60%'
+let $FZF_DEFAULT_OPTS="--reverse"
+" ctrl-v to paste in fzf prompt
+tnoremap <expr> <C-v> '<C-\><C-N>pi'
 
 function! s:toggle_nerdtree()
   if (g:NERDTree.IsOpen())
@@ -287,10 +304,6 @@ augroup END
 let g:NERDTreeMinimalUI=1
 let g:startify_session_persistence=1
 
-let g:fzf_layout = { 'window': { 'width': 0.8, 'height': 0.8 } }
-let $FZF_DEFAULT_OPTS='--reverse'
-
-
 let g:startify_lists = [
       \ { 'type': 'sessions',  'header': ['   Sessions']       },
       \ { 'type': 'dir',       'header': ['   MRU '. getcwd()] },
@@ -299,23 +312,14 @@ let g:startify_lists = [
       \ { 'type': 'commands',  'header': ['   Commands']       },
       \ ]
 
-if executable('rg')
-    let g:rg_derive_root='true'
-    let g:agriculture#rg_options='--column --pretty --smart-case'
-endif
-nnoremap <Leader>/ :Rg<SPACE>
-vmap <Leader>/ <Plug>RgRawVisualSelection<CR>
-command! -bang Open call fzf#vim#files('~', <bang>0)
-
-" ctrl-v to paste in fzf prompt
-tnoremap <expr> <C-v> '<C-\><C-N>pi'
-
 " Code folding
-" set foldmethod=indent
-" set foldenable
+set foldmethod=indent
+set foldenable
 " Keep all folds open when a file is opened
-" augroup OpenAllFoldsOnFileOpen
-"     autocmd!
-"     autocmd BufRead * normal zR
-" augroup END
+augroup OpenAllFoldsOnFileOpen
+    autocmd!
+    autocmd BufRead * normal zR
+augroup END
+
+let g:rooter_patterns = ['.git', '_darcs', '.hg', '.bzr', '.svn', 'Makefile', '=src']
 
