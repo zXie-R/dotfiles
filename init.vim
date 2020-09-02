@@ -59,10 +59,6 @@ Plug 'mbbill/undotree'
 " Search utilities
 Plug 'junegunn/fzf'
 Plug 'junegunn/fzf.vim'
-" Not working on windows
-" Plug 'jesseleite/vim-agriculture'
-
-Plug 'preservim/nerdtree'
 
 Plug 'airblade/vim-rooter'
 
@@ -72,8 +68,7 @@ Plug 'neoclide/coc.nvim', {'branch': 'release'}
 Plug 'mlaursen/vim-react-snippets'
 
 Plug 'qpkorr/vim-bufkill'
-
-Plug 'vuciv/vim-bujo'
+Plug 'farmergreg/vim-lastplace'
 
 call plug#end()
 
@@ -86,7 +81,8 @@ let g:coc_global_extensions = [
     \ 'coc-pairs',
     \ 'coc-json', 
     \ 'coc-python',
-    \ 'coc-vimlsp'
+    \ 'coc-vimlsp',
+    \ 'coc-explorer'
     \ ]
 
 let g:gruvbox_contrast_dark = 'hard'
@@ -166,10 +162,14 @@ nmap <silent> gd <Plug>(coc-definition)
 nmap <silent> gy <Plug>(coc-type-definition)
 nmap <silent> gi <Plug>(coc-implementation)
 nmap <silent> gr <Plug>(coc-references)
+nnoremap <silent><nowait> <leader>da  :<C-u>CocList diagnostics<cr>
+nmap <leader>dp <Plug>(coc-diagnostic-prev)
+nmap <leader>dn <Plug>(coc-diagnostic-next)
+nmap <silent> <leader>ep <Plug>(coc-diagnostic-prev-error)
+nmap <silent> <leader>en <Plug>(coc-diagnostic-next-error)
 
 " Use K to show documentation in preview window.
-nnoremap <silent> <K> :call <SID>show_documentation()<CR>
-
+nnoremap <silent> <C-k> :call <SID>show_documentation()<CR>
 function! s:show_documentation()
   if (index(['vim','help'], &filetype) >= 0)
     execute 'h '.expand('<cword>')
@@ -206,22 +206,6 @@ nmap <leader>ac  <Plug>(coc-codeaction)
 " Apply AutoFix to problem on the current line.
 nmap <leader>qf  <Plug>(coc-fix-current)
 
-" Map function and class text objects
-" NOTE: Requires 'textDocument.documentSymbol' support from the language server.
-xmap if <Plug>(coc-funcobj-i)
-omap if <Plug>(coc-funcobj-i)
-xmap af <Plug>(coc-funcobj-a)
-omap af <Plug>(coc-funcobj-a)
-xmap ic <Plug>(coc-classobj-i)
-omap ic <Plug>(coc-classobj-i)
-xmap ac <Plug>(coc-classobj-a)
-omap ac <Plug>(coc-classobj-a)
-
-" Use CTRL-S for selections ranges.
-" Requires 'textDocument/selectionRange' support of LS, ex: coc-tsserver
-nmap <silent> <C-s> <Plug>(coc-range-select)
-xmap <silent> <C-s> <Plug>(coc-range-select)
-
 " Add `:Format` command to format current buffer.
 command! -nargs=0 Format :call CocAction('format')
 
@@ -235,24 +219,6 @@ command! -nargs=0 OR :call CocAction('runCommand', 'editor.action.organizeImport
 " NOTE: Please see `:h coc-status` for integrations with external plugins that
 " provide custom statusline: lightline.vim, vim-airline.
 set statusline^=%{coc#status()}%{get(b:,'coc_current_function','')}
-
-" Mappings for CoCList
-" Show all diagnostics.
-nnoremap <silent><nowait> <Bslash>a  :<C-u>CocList diagnostics<cr>
-" Manage extensions.
-nnoremap <silent><nowait> <Bslash>e  :<C-u>CocList extensions<cr>
-" Show commands.
-nnoremap <silent><nowait> <Bslash>c  :<C-u>CocList commands<cr>
-" Find symbol of current document.
-nnoremap <silent><nowait> <Bslash>o  :<C-u>CocList outline<cr>
-" Search workspace symbols.
-nnoremap <silent><nowait> <Bslash>s  :<C-u>CocList -I symbols<cr>
-" Do default action for next item.
-nnoremap <silent><nowait> <Bslash>j  :<C-u>CocNext<CR>
-" Do default action for previous item.
-nnoremap <silent><nowait> <Bslash>k  :<C-u>CocPrev<CR>
-" Resume latest coc list.
-nnoremap <silent><nowait> <Bslash>p  :<C-u>CocListResume<CR>
 
 " End of coc configuration
 
@@ -287,23 +253,15 @@ let $FZF_DEFAULT_OPTS="--reverse"
 " ctrl-v to paste in fzf prompt
 tnoremap <expr> <C-v> '<C-\><C-N>pi'
 
-function! s:toggle_nerdtree()
-  if (g:NERDTree.IsOpen())
-      execute ":NERDTreeToggleVCS"
-  else
-      execute ":NERDTreeFind"
-  endif
-endfunction
-nnoremap <silent><C-e> :call <SID>toggle_nerdtree()<CR>
+:nmap <C-e> :CocCommand explorer<CR>
+autocmd BufEnter * if (winnr("$") == 1 && &filetype == 'coc-explorer') | q | endif
 
 augroup vimrc_help
   autocmd!
   autocmd BufEnter *.txt if &buftype == 'help' | wincmd L | endif
 augroup END
 
-let g:NERDTreeMinimalUI=1
 let g:startify_session_persistence=1
-
 let g:startify_lists = [
       \ { 'type': 'sessions',  'header': ['   Sessions']       },
       \ { 'type': 'dir',       'header': ['   MRU '. getcwd()] },
@@ -312,14 +270,6 @@ let g:startify_lists = [
       \ { 'type': 'commands',  'header': ['   Commands']       },
       \ ]
 
-" Code folding
-set foldmethod=indent
-set foldenable
-" Keep all folds open when a file is opened
-augroup OpenAllFoldsOnFileOpen
-    autocmd!
-    autocmd BufRead * normal zR
-augroup END
+let g:rooter_patterns = ['.git', '_darcs', '.hg', '.bzr', '.svn', 'Makefile','=src']
 
-let g:rooter_patterns = ['.git', '_darcs', '.hg', '.bzr', '.svn', 'Makefile', '=src']
-
+" let g:node_client_debug = 1
