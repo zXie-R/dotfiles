@@ -1,3 +1,5 @@
 {
-    "snippets.ultisnips.directories":["~/.vim/plugged/vim-react-snippets/UltiSnips"]
+    "snippets.ultisnips.directories":["~/.vim/plugged/vim-react-snippets/UltiSnips"],
+    "explorer.icon.enableNerdfont": true,
+    "explorer.previewAction.onHover": false
 }
