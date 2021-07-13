@@ -1,5 +1,11 @@
 {
     "snippets.ultisnips.directories":["~/.vim/plugged/vim-react-snippets/UltiSnips"],
     "explorer.icon.enableNerdfont": true,
-    "explorer.previewAction.onHover": false
+    "explorer.previewAction.onHover": false,
+    "explorer.quitOnOpen": true,
+    "snippets.convertToSnippetsAction": false,
+    "signature.target": "echo",
+    "coc.preferences.hoverTarget": "echo",
+    "typescript.preferences.importModuleSpecifier": "relative",
+    "coc.preferences.formatOnSaveFiletypes": ["typescript", "typescriptreact"]
 }
